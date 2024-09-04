@@ -1,281 +1,96 @@
-# Create a Container Action with the GitHub Actions Toolkit
+# Slacktify
 
-[![GitHub Super-Linter](https://github.com/actions/container-toolkit-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![Check `dist/`](https://github.com/actions/container-toolkit-action/actions/workflows/check-dist.yml/badge.svg)
-![CI](https://github.com/actions/container-toolkit-action/actions/workflows/ci.yml/badge.svg)
-[![Code Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+This is Slack Notification Action.
 
-Use this template to bootstrap the creation of a container action with the
-GitHub Actions toolkit. :rocket:
+## Disclaimer
 
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
+We have observed that the Slack notification feature in our GitHub Action, which conveys important messages such as repository name, commit, workflows and author is highly beneficial. Consequently, we have decided to develop a new version of [lazy-actions/slatify](https://github.com/lazy-actions/slatify), which has not been maintained since 2021.
 
-For more information on the GitHub Actions toolkit, see the
-[`actions/toolkit` repository](https://github.com/actions/toolkit/tree/main/docs)
+This new Action retains the core functionality of the original while incorporating updated dependencies and implementing minor adjustments to align with recent changes in the GitHub Actions environment, such as [this update](https://github.blog/changelog/2022-09-22-github-actions-all-actions-will-begin-running-on-node16-instead-of-node12/).
 
-## Create Your Own Action
+## Table of Contents
 
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
+- [Slacktify](#slacktify)
+  - [Disclaimer](#disclaimer)
+  - [Table of Contents](#table-of-contents)
+  - [Feature](#feature)
+  - [Inputs](#inputs)
+  - [Examples](#examples)
+    - [Basic usage](#basic-usage)
+    - [Includes the latest commit information](#includes-the-latest-commit-information)
+  - [Slack UI](#slack-ui)
+  - [LICENSE](#license)
 
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
+## Feature
 
-> [!IMPORTANT]
->
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
-> details on how to use this file, see
-> [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
+- Notify the result of GitHub Actions
+- Support three job status (reference:
+  [job-context](https://help.github.com/en/articles/contexts-and-expression-syntax-for-github-actions#job-context))
+  - `success`
+  - `failure`
+  - `cancelled`
+- Mention
+  - Notify message to channel members efficiently
+  - You can specify the condition to mention
 
-## Initial Setup
+## Inputs
 
-After you've cloned the repository to your local machine or codespace, you'll
-need to perform some initial setup steps before you can develop your action.
+First of all, you need to set GitHub secrets for `SLACK_WEBHOOK` that is Incoming Webhook URL.
 
-> [!NOTE]
->
-> You'll need to have reasonably modern versions of
-> [Node.js](https://nodejs.org) and
-> [Docker](https://www.docker.com/get-started/) handy (e.g. Node.js v20+ and
-> docker engine v20+).
+You can customize the following parameters:
 
-1. :hammer_and_wrench: Install the dependencies
+| `with` parameter | required/optional | default                                  | description                                                                                                                                                                      |
+| :------------: | :---------------: | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|      type      |     required      | N/A                                      | The result of GitHub Actions job<br>This parameter value must contain the following word:<br>- `success`<br>- `failure`<br>- `cancelled`<br>We recommend using `${{ job.status }}` |
+|    job_name    |     required      | N/A                                      | Means slack notification title                                                                                                                                                   |
+|      url       |     required      | N/A                                      | Slack Incoming Webhooks URL<br>Please specify this key or `SLACK_WEBHOOK` environment variable<br>`SLACK_WEBHOOK` will be deprecated                                                |
+|    mention     |     optional      | N/A                                      | Slack message mention                                                                                                                                                            |
+|   mention_if   |     optional      | N/A                                      | The condition to mention<br>This parameter can contain the following word:<br>- `always`<br>- `success`<br>- `failure`<br>- `cancelled`                                          |
+|   icon_emoji   |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack icon                                                                                                                                                                       |
+|    username    |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack username                                                                                                                                                                   |
+|    channel     |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack channel name                                                                                                                                                               |
+|     commit     |     optional      | false                                    | If true, slack notification includes the latest commit message and author.                                                                                                       |
+|     token      |   case by case    | N/A                                      | This token is used to get commit data.<br>If commit parameter is true, this parameter is required.<br>`${{ secrets.GITHUB_TOKEN }}` is recommended.                                |
 
-   ```bash
-   npm install
-   ```
+Please refer to [action.yml](./action.yml) for more details.
 
-1. :building_construction: Package the TypeScript for distribution
+## Examples
 
-   ```bash
-   npm run bundle
-   ```
-
-1. :white_check_mark: Run the tests
-
-   ```bash
-   $ npm test
-
-   PASS  ./index.test.js
-     ✓ throws invalid number (3ms)
-     ✓ wait 500 ms (504ms)
-     ✓ test runs (95ms)
-
-   ...
-   ```
-
-1. :hammer_and_wrench: Build the container
-
-   Make sure to replace `actions/container-toolkit-action` with an appropriate
-   label for your container.
-
-   ```bash
-   docker build -t actions/container-toolkit-action .
-   ```
-
-1. :white_check_mark: Test the container
-
-   You can pass individual environment variables using the `--env` or `-e` flag.
-
-   ```bash
-   $ docker run --env INPUT_MILLISECONDS=2000 actions/container-toolkit-action
-   ::debug::The event payload: {}
-   16:19:19 GMT+0000 (Coordinated Universal Time)
-   16:19:21 GMT+0000 (Coordinated Universal Time)
-
-   ::set-output name=time::16:19:21 GMT+0000 (Coordinated Universal Time)
-   ```
-
-   Or you can pass a file with environment variables using `--env-file`.
-
-   ```bash
-   $ echo "INPUT_MILLISECONDS=2000" > ./.env.test
-
-   $ docker run --env-file ./.env.test actions/container-toolkit-action
-   ::debug::The event payload: {}
-   16:19:19 GMT+0000 (Coordinated Universal Time)
-   16:19:21 GMT+0000 (Coordinated Universal Time)
-
-   ::set-output name=time::16:19:21 GMT+0000 (Coordinated Universal Time)
-   ```
-
-## Update the Action Metadata
-
-The [`action.yml`](action.yml) file defines metadata about your action, such as
-input(s) and output(s). For details about this file, see
-[Metadata syntax for GitHub Actions](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions).
-
-When you copy this repository, update `action.yml` with the name, description,
-inputs, and outputs for your action.
-
-## Update the Action Code
-
-### Update the TypeScript Source
-
-The [`src/`](./src/) directory is the heart of your action! This contains the
-source code that will be run when your action is invoked. You can replace the
-contents of this directory with your own code.
-
-There are a few things to keep in mind when writing your action code:
-
-- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously.
-  In `main.ts`, you will see that the action is run in an `async` function.
-
-  ```javascript
-  import * as core from '@actions/core'
-  //...
-
-  export async function run(): Promise<void> {
-    try {
-      //...
-    } catch (error) {
-      core.setFailed(error.message)
-    }
-  }
-  ```
-
-  For more information about the GitHub Actions toolkit, see the
-  [documentation](https://github.com/actions/toolkit/blob/main/README.md).
-
-### Update the Container
-
-In this template, the container action runs a Node.js script,
-`node /dist/index.js`, when the container is launched. Since you can choose any
-base Docker image and language you like, you can change this to suite your
-needs. There are a few main things to remember when writing code for container
-actions:
-
-- Inputs are accessed using argument identifiers or environment variables
-  (depending on what you set in your `action.yml`). For example, the first input
-  to this action, `milliseconds`, can be accessed in the Node.js script using
-  the `process.env.INPUT_MILLISECONDS` environment variable or the
-  `getInput('milliseconds')` function from the `@actions/core` library.
-
-  ```bash
-  // Use an action input
-  const ms: number = parseInt(core.getInput('milliseconds'), 10)
-
-  // Use an environment variable
-  const ms: number = parseInt(process.env.INPUT_MILLISECONDS, 10)
-  ```
-
-- GitHub Actions supports a number of different workflow commands such as
-  creating outputs, setting environment variables, and more. These are
-  accomplished by writing to different `GITHUB_*` environment variables. For
-  more information, see
-  [Commands](https://github.com/actions/toolkit/blob/main/docs/commands.md).
-
-  | Scenario             | Example                                             |
-  | -------------------- | --------------------------------------------------- |
-  | Set environment vars | `core.exportVariable('MY_VAR', 'my-value')`         |
-  | Set outputs          | `core.setOutput('time', new Date().toTimeString())` |
-  | Set secrets          | `core.setSecret('mySecret')`                        |
-  | Prepend to `PATH`    | `core.addPath('/usr/local/bin')`                    |
-
-## Publish the Action
-
-So, what are you waiting for? Go ahead and start customizing your action!
-
-1. Create a new branch
-
-   ```bash
-   git checkout -b releases/v1
-   ```
-
-1. Replace the contents of `src/` with your action code
-1. Add tests to `__tests__/` for your source code
-1. Format, test, and build the action
-
-   ```bash
-   npm run all
-   ```
-
-   > [!WARNING]
-   >
-   > This step is important! It will run [`ncc`](https://github.com/vercel/ncc)
-   > to build the final JavaScript action code with all dependencies included.
-   > If you do not run this step, your action will not work correctly when it is
-   > used in a workflow. This step also includes the `--license` option for
-   > `ncc`, which will create a license file for all of the production node
-   > modules used in your project.
-
-1. Commit your changes
-
-   ```bash
-   git add .
-   git commit -m "My first action is ready!"
-   ```
-
-1. Push them to your repository
-
-   ```bash
-   git push -u origin releases/v1
-   ```
-
-1. Create a pull request and get feedback on your action
-1. Merge the pull request into the `main` branch
-
-Your action is now published! :rocket:
-
-For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-## Validate the Action
-
-You can now validate the action by referencing it in a workflow file. For
-example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
-action in the same repository.
+### Basic usage
 
 ```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
-
-  - name: Test Local Action
-    id: test-action
-    uses: ./
-    with:
-      milliseconds: 1000
-
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+- name: Slack Notification
+  uses: lazy-actions/slatify@master
+  if: always()
+  with:
+    type: ${{ job.status }}
+    job_name: '*Test*'
+    channel: '#random'
+    url: ${{ secrets.SLACK_WEBHOOK }}
 ```
 
-For example workflow runs, check out the
-[Actions tab](https://github.com/actions/container-toolkit-action/actions)!
-:rocket:
-
-## Usage
-
-After testing, you can create version tag(s) that developers can use to
-reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-To include the action in a workflow in another repository, you can use the
-`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
-hash.
+### Includes the latest commit information
 
 ```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
-
-  - name: Test Local Action
-    id: test-action
-    uses: actions/container-toolkit-action@v1 # Commit with the `v1` tag
-    with:
-      milliseconds: 1000
-
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+- name: Slack Notification
+  uses: lazy-actions/slatify@master
+  if: always()
+  with:
+    type: ${{ job.status }}
+    job_name: '*Lint Check*'
+    mention: 'here'
+    mention_if: 'failure'
+    channel: '#random'
+    url: ${{ secrets.SLACK_WEBHOOK }}
+    commit: true
+    token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+## Slack UI
+
+![Notification Preview](./images/slack1.png)
+![Notification Preview](./images/slack2.png)
+
+## LICENSE
+
+[The MIT License (MIT)](https://github.com/ilhamsyahids/slackify/blob/master/LICENSE)
