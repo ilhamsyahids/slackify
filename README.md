@@ -4,9 +4,16 @@ This is Slack Notification Action.
 
 ## Disclaimer
 
-We have observed that the Slack notification feature in our GitHub Action, which conveys important messages such as repository name, commit, workflows and author is highly beneficial. Consequently, we have decided to develop a new version of [lazy-actions/slatify](https://github.com/lazy-actions/slatify), which has not been maintained since 2021.
+We have observed that the Slack notification feature in our GitHub Action, which
+conveys important messages such as repository name, commit, workflows and author
+is highly beneficial. Consequently, we have decided to develop a new version of
+[lazy-actions/slatify](https://github.com/lazy-actions/slatify), which has not
+been maintained since 2021.
 
-This new Action retains the core functionality of the original while incorporating updated dependencies and implementing minor adjustments to align with recent changes in the GitHub Actions environment, such as [this update](https://github.blog/changelog/2022-09-22-github-actions-all-actions-will-begin-running-on-node16-instead-of-node12/).
+This new Action retains the core functionality of the original while
+incorporating updated dependencies and implementing minor adjustments to align
+with recent changes in the GitHub Actions environment, such as
+[this update](https://github.blog/changelog/2022-09-22-github-actions-all-actions-will-begin-running-on-node16-instead-of-node12/).
 
 ## Table of Contents
 
@@ -35,22 +42,23 @@ This new Action retains the core functionality of the original while incorporati
 
 ## Inputs
 
-First of all, you need to set GitHub secrets for `SLACK_WEBHOOK` that is Incoming Webhook URL.
+First of all, you need to set GitHub secrets for `SLACK_WEBHOOK` that is
+Incoming Webhook URL.
 
 You can customize the following parameters:
 
-| `with` parameter | required/optional | default                                  | description                                                                                                                                                                      |
-| :------------: | :---------------: | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|      type      |     required      | N/A                                      | The result of GitHub Actions job<br>This parameter value must contain the following word:<br>- `success`<br>- `failure`<br>- `cancelled`<br>We recommend using `${{ job.status }}` |
-|    job_name    |     required      | N/A                                      | Means slack notification title                                                                                                                                                   |
-|      url       |     required      | N/A                                      | Slack Incoming Webhooks URL<br>Please specify this key or `SLACK_WEBHOOK` environment variable<br>`SLACK_WEBHOOK` will be deprecated                                                |
-|    mention     |     optional      | N/A                                      | Slack message mention                                                                                                                                                            |
-|   mention_if   |     optional      | N/A                                      | The condition to mention<br>This parameter can contain the following word:<br>- `always`<br>- `success`<br>- `failure`<br>- `cancelled`                                          |
-|   icon_emoji   |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack icon                                                                                                                                                                       |
-|    username    |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack username                                                                                                                                                                   |
-|    channel     |     optional      | Legacy Information Slack Incoming Webhook configuration | Slack channel name                                                                                                                                                               |
-|     commit     |     optional      | false                                    | If true, slack notification includes the latest commit message and author.                                                                                                       |
-|     token      |   case by case    | N/A                                      | This token is used to get commit data.<br>If commit parameter is true, this parameter is required.<br>`${{ secrets.GITHUB_TOKEN }}` is recommended.                                |
+| `with` parameter | required/optional | default                                  | description                                                                                                                                                                        |
+| :--------------: | :---------------: | :--------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       type       |     required      | N/A                                      | The result of GitHub Actions job<br>This parameter value must contain the following word:<br>- `success`<br>- `failure`<br>- `cancelled`<br>We recommend using `${{ job.status }}` |
+|     job_name     |     required      | N/A                                      | Means slack notification title                                                                                                                                                     |
+|       url        |     required      | N/A                                      | Slack Incoming Webhooks URL<br>Please specify this key or `SLACK_WEBHOOK` environment variable<br>`SLACK_WEBHOOK` will be deprecated                                               |
+|     mention      |     optional      | N/A                                      | Slack message mention                                                                                                                                                              |
+|    mention_if    |     optional      | N/A                                      | The condition to mention<br>This parameter can contain the following word:<br>- `always`<br>- `success`<br>- `failure`<br>- `cancelled`                                            |
+|    icon_emoji    |     optional      | Use Slack Incoming Webhook configuration | Legacy Information Slack icon                                                                                                                                                      |
+|     username     |     optional      | Use Slack Incoming Webhook configuration | Legacy Information Slack username                                                                                                                                                  |
+|     channel      |     optional      | Use Slack Incoming Webhook configuration | Legacy Information Slack channel name                                                                                                                                              |
+|      commit      |     optional      | false                                    | If true, slack notification includes the latest commit message and author.                                                                                                         |
+|      token       |   case by case    | N/A                                      | This token is used to get commit data.<br>If commit parameter is true, this parameter is required.<br>`${{ secrets.GITHUB_TOKEN }}` is recommended.                                |
 
 Please refer to [action.yml](./action.yml) for more details.
 
