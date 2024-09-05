@@ -33065,6 +33065,8 @@ async function run() {
     core.debug(`Generated payload for slack: ${JSON.stringify(payload)}`);
     await slack_1.Slack.notify(url, slackOptions, payload);
     core.info('Post message to Slack');
+    // Set payload as output
+    core.setOutput('payload', payload);
 }
 try {
     run();
