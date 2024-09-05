@@ -5,7 +5,7 @@ build:
 
 test:
 	-make build
-	docker run \
+	docker run -it --rm \
 		-e GITHUB_REPOSITORY=${GITHUB_REPOSITORY} \
 		-e GITHUB_SHA=${GITHUB_SHA} \
 		-e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} \
@@ -18,4 +18,4 @@ test:
 		-e INPUT_COMMIT=true \
 		-e INPUT_TYPE=success \
 		-e INPUT_TOKEN="${GITHUB_TOKEN}" \
-		--rm slackify
+		slackify
