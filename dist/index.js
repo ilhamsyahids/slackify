@@ -33053,8 +33053,7 @@ async function run() {
     }
     if (!url) {
         throw new Error(`Missing Slack Incoming Webhooks URL.
-      Please configure "SLACK_WEBHOOK" as environment variable or
-      specify the key called "url" in "with" section.
+      Please specify the "url" key in "with" section.
       `);
     }
     let commit;
