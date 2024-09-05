@@ -3,8 +3,10 @@
 [![GitHub Super-Linter](https://github.com/ilhamsyahids/slackify/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![Check `dist/`](https://github.com/ilhamsyahids/slackify/actions/workflows/check-dist.yml/badge.svg)
 [![CI](https://github.com/ilhamsyahids/slackify/actions/workflows/ci.yml/badge.svg)](https://github.com/ilhamsyahids/slackify/actions/workflows/ci.yml)
-![Release](https://img.shields.io/github/v/release/ilhamsyahids/slackify?color=brightgreen)
-[![Code Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-v1-undefined.svg?logo=github&logoColor=white&style=flat)](https://github.com/marketplace/actions/slackify-notification)
+[![Release](https://img.shields.io/github/v/release/ilhamsyahids/slackify?color=brightgreen)](https://github.com/ilhamsyahids/slackify/releases)
+[![Coverage](https://codecov.io/gh/ilhamsyahids/slackify/branch/main/graph/badge.svg)](https://codecov.io/gh/ilhamsyahids/slackify)
 ![License](https://img.shields.io/github/license/ilhamsyahids/slackify?color=brightgreen)
 
 This is Slack Notification Action.
