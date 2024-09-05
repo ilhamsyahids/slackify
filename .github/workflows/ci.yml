@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
 
+concurrency: ci
+
 jobs:
   test-typescript:
     name: TypeScript Tests
@@ -45,54 +47,23 @@ jobs:
   test-docker:
     name: Docker Tests
     runs-on: ubuntu-latest
-
-    # Run a local registry to push to
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5001:5000
-
+    # check `Makefile` for more details
     env:
-      TEST_TAG: localhost:5001/ilhamsyahids/slacktify:latest
-
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_EVENT_NAME: ${{ github.event_name }}
+      GITHUB_REF: ${{ github.ref }}
+      GITHUB_WORKFLOW: ${{ github.workflow }}
+      SLACK_WEBHOOK: "${{ secrets.SLACK_WEBHOOK_TEST }}"
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Setup Docker BuildX
-        id: setup-buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          install: true
-          driver-opts: network=host
-
-      - name: Build the Container
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ env.TEST_TAG }}
-
       - name: Run the Container
-        id: run
         run: |
-          docker run \
-            -e GITHUB_REPOSITORY=${{ github.repository }} \
-            -e GITHUB_SHA=${{ github.sha }} \
-            -e GITHUB_EVENT_NAME=${{ github.event_name }} \
-            -e GITHUB_REF=${{ github.ref }} \
-            -e GITHUB_WORKFLOW=${{ github.workflow }} \
-            -e INPUT_TYPE=success 
-            -e INPUT_JOB_NAME=Test \
-            -e INPUT_MENTION=here \
-            -e INPUT_MENTION_IF=failure \
-            -e INPUT_URL="${{ secrets.SLACK_WEBHOOK_TEST }}" \
-            -e INPUT_COMMIT=true \
-            -e INPUT_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-            --rm ${{ env.TEST_TAG }}
+          make test
 
   test-action:
     name: GitHub Actions Test
