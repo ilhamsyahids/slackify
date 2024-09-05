@@ -9,7 +9,7 @@ async function run(): Promise<void> {
     core.getInput('type', { required: true }).toLowerCase()
   )
   const jobName = core.getInput('job_name', { required: true })
-  const url = process.env.SLACK_WEBHOOK || core.getInput('url')
+  const url = core.getInput('url')
   let mention = core.getInput('mention')
   let mentionCondition = core.getInput('mention_if').toLowerCase()
   const slackOptions: IncomingWebhookDefaultArguments = {
