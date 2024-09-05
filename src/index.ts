@@ -51,6 +51,9 @@ async function run(): Promise<void> {
 
   await Slack.notify(url, slackOptions, payload)
   core.info('Post message to Slack')
+
+  // Set payload as output
+  core.setOutput('payload', payload)
 }
 
 try {

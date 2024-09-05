@@ -39,6 +39,10 @@ runs:
   using: 'node20'
   main: 'dist/index.js'
 
+outputs:
+  payload:
+    description: 'Payload that sent to slack'
+
 branding:
   icon: 'bell'
   color: 'red'
