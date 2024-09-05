@@ -54,8 +54,8 @@ jobs:
       GITHUB_EVENT_NAME: ${{ github.event_name }}
       GITHUB_REF: ${{ github.ref }}
       GITHUB_WORKFLOW: ${{ github.workflow }}
-      SLACK_WEBHOOK: "${{ secrets.SLACK_WEBHOOK_TEST }}"
-      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      SLACK_WEBHOOK: '${{ secrets.SLACK_WEBHOOK_TEST }}'
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     steps:
       - name: Checkout
         id: checkout
@@ -88,4 +88,4 @@ jobs:
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.payload }}"
+        run: printf '${{ steps.test-action.outputs.payload }}'
