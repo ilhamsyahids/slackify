@@ -4,11 +4,11 @@ This is Slack Notification Action.
 
 ## Disclaimer
 
-We have observed that the Slack notification feature in our GitHub Action, which
-conveys important messages such as repository name, commit, workflows and author
-is highly beneficial. Consequently, we have decided to develop a new version of
-[lazy-actions/slatify](https://github.com/lazy-actions/slatify), which has not
-been maintained since 2021.
+This repository is a fork of the original
+[lazy-actions/slatify](https://github.com/lazy-actions/slatify) repository. The
+original repository has not been updated for a long time (since 2021).
+Therefore, we have decided to create new Action to ensure that the feature
+remains available and up-to-date.
 
 This new Action retains the core functionality of the original while
 incorporating updated dependencies and implementing minor adjustments to align
@@ -68,7 +68,7 @@ Please refer to [action.yml](./action.yml) for more details.
 
 ```yaml
 - name: Slack Notification
-  uses: lazy-actions/slatify@master
+  uses: ilhamsyahids/slackify@v1
   if: always()
   with:
     type: ${{ job.status }}
@@ -81,7 +81,7 @@ Please refer to [action.yml](./action.yml) for more details.
 
 ```yaml
 - name: Slack Notification
-  uses: lazy-actions/slatify@master
+  uses: ilhamsyahids/slackify@v1
   if: always()
   with:
     type: ${{ job.status }}
@@ -91,7 +91,7 @@ Please refer to [action.yml](./action.yml) for more details.
     channel: '#random'
     url: ${{ secrets.SLACK_WEBHOOK }}
     commit: true
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.GITHUB_TOKEN }} # Required if commit is true
 ```
 
 ## Slack UI
