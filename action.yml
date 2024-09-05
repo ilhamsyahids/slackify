@@ -1,21 +1,48 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Slackify'
+description: 'Slack Notification Action'
+author: 'ilhamsyahids'
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  type:
+    description: 'job status (success, failure or cancelled)'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  job_name:
+    description: 'title of the notification (format: markdown)'
+    required: true
+  mention:
+    description: 'slack mention'
+    required: false
+  mention_if:
+    description: 'the condition for mentioning'
+    required: false
+  username:
+    description: 'legacy information slack username'
+    required: false
+  icon_emoji:
+    description: 'legacy information slack icon emoji'
+    required: false
+  channel:
+    description: 'legacy information slack channel'
+    required: false
+  url:
+    description: 'slack incoming webhook url'
+    required: false
+  commit:
+    description: 'whether include commit data or not (true or false)'
+    required: false
+    default: 'false'
+  token:
+    description: 'need to get commit data'
+    required: false
 
 runs:
-  using: docker
-  image: Dockerfile
-  env:
-    INPUT_MILLISECONDS: ${{ inputs.milliseconds }}
+  using: 'node20'
+  main: 'dist/index.js'
+
+outputs:
+  payload:
+    description: 'Payload that sent to slack'
+
+branding:
+  icon: 'bell'
+  color: 'red'

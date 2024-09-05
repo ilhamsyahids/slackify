@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
 
+concurrency: ci
+
 jobs:
   test-typescript:
     name: TypeScript Tests
@@ -45,45 +47,23 @@ jobs:
   test-docker:
     name: Docker Tests
     runs-on: ubuntu-latest
-
-    # Run a local registry to push to
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5001:5000
-
+    # check `Makefile` for more details
     env:
-      TEST_TAG: localhost:5001/actions/container-toolkit-action:latest
-
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_EVENT_NAME: ${{ github.event_name }}
+      GITHUB_REF: ${{ github.ref }}
+      GITHUB_WORKFLOW: ${{ github.workflow }}
+      SLACK_WEBHOOK: '${{ secrets.SLACK_WEBHOOK_TEST }}'
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Setup Docker BuildX
-        id: setup-buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          install: true
-          driver-opts: network=host
-
-      - name: Build the Container
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ env.TEST_TAG }}
-
       - name: Run the Container
-        id: run
-        env:
-          INPUT_MILLISECONDS: 2000
         run: |
-          docker run \
-            --env INPUT_MILLISECONDS="${{ env.INPUT_MILLISECONDS }}" \
-            --rm ${{ env.TEST_TAG }}
+          make test
 
   test-action:
     name: GitHub Actions Test
@@ -98,8 +78,14 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
+          type: ${{ job.status }}
+          job_name: ${{ github.job }}
+          mention: here
+          mention_if: failure
+          url: ${{ secrets.SLACK_WEBHOOK_TEST }}
+          commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: printf '${{ steps.test-action.outputs.payload }}'
