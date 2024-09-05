@@ -54,7 +54,7 @@ jobs:
           - 5001:5000
 
     env:
-      TEST_TAG: localhost:5001/actions/container-toolkit-action:latest
+      TEST_TAG: localhost:5001/ilhamsyahids/slacktify:latest
 
     steps:
       - name: Checkout
@@ -82,7 +82,18 @@ jobs:
           INPUT_MILLISECONDS: 2000
         run: |
           docker run \
-            --env INPUT_MILLISECONDS="${{ env.INPUT_MILLISECONDS }}" \
+            -e GITHUB_REPOSITORY=ilhamsyahids/slackify \
+            -e GITHUB_SHA=74fee4b6e863ce10181e61e1a54152e72e545689 \
+            -e GITHUB_EVENT_NAME=push \
+            -e GITHUB_REF=refs/heads/main \
+            -e GITHUB_WORKFLOW=Test \
+            -e INPUT_TYPE=success \
+            -e INPUT_JOB_NAME=Test \
+            -e INPUT_MENTION=here \
+            -e INPUT_MENTION_IF=failure \
+            -e INPUT_URL=${{ secrets.SLACK_WEBHOOK_TEST }} \
+            -e INPUT_COMMIT=true \
+            -e INPUT_TOKEN=${{ secrets.GITHUB_TOKEN }}" \
             --rm ${{ env.TEST_TAG }}
 
   test-action:
@@ -102,4 +113,4 @@ jobs:
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: echo "${{ steps.test-action.outputs.payload }}"
