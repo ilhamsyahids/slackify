@@ -8,7 +8,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Copy the repository contents to the container
-COPY . .
+COPY dist dist
 
 # Run the specified command within the container
 ENTRYPOINT ["node", "/usr/src/app/dist/index.js"]
