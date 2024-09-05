@@ -18,7 +18,7 @@ async function run(): Promise<void> {
     icon_emoji: core.getInput('icon_emoji')
   }
   const commitFlag = core.getInput('commit') === 'true'
-  const token = core.getInput('token')
+  const token = core.getInput('token') || core.getInput('github_token')
 
   if (mention && !isValidCondition(mentionCondition)) {
     mention = ''
