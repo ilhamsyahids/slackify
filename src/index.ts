@@ -9,7 +9,7 @@ async function run(): Promise<void> {
     core.getInput('type', { required: true }).toLowerCase()
   )
   const jobName = core.getInput('job_name', { required: true })
-  const url = process.env.SLACK_WEBHOOK || core.getInput('url')
+  const url = core.getInput('url')
   let mention = core.getInput('mention')
   let mentionCondition = core.getInput('mention_if').toLowerCase()
   const slackOptions: IncomingWebhookDefaultArguments = {
@@ -18,7 +18,7 @@ async function run(): Promise<void> {
     icon_emoji: core.getInput('icon_emoji')
   }
   const commitFlag = core.getInput('commit') === 'true'
-  const token = core.getInput('token')
+  const token = core.getInput('token') || core.getInput('github_token')
 
   if (mention && !isValidCondition(mentionCondition)) {
     mention = ''
@@ -30,8 +30,7 @@ async function run(): Promise<void> {
 
   if (!url) {
     throw new Error(`Missing Slack Incoming Webhooks URL.
-      Please configure "SLACK_WEBHOOK" as environment variable or
-      specify the key called "url" in "with" section.
+      Please specify the "url" key in "with" section.
       `)
   }
 

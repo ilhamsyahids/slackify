@@ -34,6 +34,7 @@ inputs:
   token:
     description: 'need to get commit data'
     required: false
+    default: ${{ github.token }}
 
 runs:
   using: 'node20'
