@@ -73,8 +73,8 @@ describe('Commit Field Tests', () => {
       url: 'https://this.is.test',
       message: 'this is test',
       author: {
-        url: 'https://lazy-actions',
-        name: 'lazy-actions'
+        url: 'https://github.com/ilhamsyahids',
+        name: 'ilhamsyahids'
       }
     }
     const expectedCommitField = [
@@ -116,8 +116,8 @@ describe('Payload Tests', () => {
       message: 'Hello World\nYEAH!!!!!',
       url: 'https://this.is.test',
       author: {
-        name: 'lazy-actions',
-        url: 'https://lazy-actions'
+        name: 'ilhamsyahids',
+        url: 'https://github.com/ilhamsyahids'
       }
     }
   }
@@ -199,7 +199,7 @@ describe('Payload Tests', () => {
 describe('Post Message Tests', () => {
   const baseUrl = 'https://this.is.test'
   const options = {
-    username: 'lazy-actions',
+    username: 'ilhamsyahids',
     channel: 'test',
     icon_emoji: 'pray'
   }
