@@ -1,15 +1,6 @@
 import * as github from '@actions/github'
 import { getWorkflowUrls } from '../src/github'
-
-export const commonContext = {
-  workflow: 'test',
-  ref: '1',
-  sha: '2',
-  owner: 'ilhamsyahids',
-  repo: 'slackify',
-  number: 3
-}
-export const repoUrl = `https://github.com/${commonContext.owner}/${commonContext.repo}`
+import { commonContext, repoUrl } from './common'
 
 github.context.workflow = commonContext.workflow
 github.context.ref = commonContext.ref

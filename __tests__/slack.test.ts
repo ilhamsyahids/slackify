@@ -3,7 +3,22 @@ import nock from 'nock'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Block, Slack } from '../src/slack'
-import { commonContext, repoUrl } from './github.test'
+import { commonContext, repoUrl } from './common'
+
+github.context.workflow = commonContext.workflow
+github.context.ref = commonContext.ref
+github.context.sha = commonContext.sha
+github.context.payload = {
+  issue: {
+    number: commonContext.number
+  },
+  repository: {
+    owner: {
+      login: commonContext.owner
+    },
+    name: commonContext.repo
+  }
+}
 
 describe('Base Field Tests', () => {
   function generateExpectedBaseField(
@@ -202,10 +217,14 @@ describe('Post Message Tests', () => {
   test('Throw error', async () => {
     nock(baseUrl).post('/failure').reply(404, { error: 'channel_not_found' })
 
+    let error: Error | unknown
     try {
       await Slack.notify(`${baseUrl}/failure`, options, payload)
-    } catch (err: any) {
-      expect(err.message).toBe('Failed to post message to Slack')
+    } catch (err: unknown) {
+      error = err
+    } finally {
+      const message = error instanceof Error ? error.message : ''
+      expect(message).toBe('Failed to post message to Slack')
     }
   })
 })

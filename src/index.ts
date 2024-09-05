@@ -53,4 +53,9 @@ async function run(): Promise<void> {
   core.info('Post message to Slack')
 }
 
-run().catch(err => core.setFailed(err.message))
+try {
+  run()
+} catch (err) {
+  const message = err instanceof Error ? err.message : ''
+  core.setFailed(message)
+}

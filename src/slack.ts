@@ -24,7 +24,7 @@ export class Block {
     }
   }
 
-  public static getBaseField(): MrkdwnElement[] {
+  static getBaseField(): MrkdwnElement[] {
     const { owner, repo } = context.repo
     const url = github.getWorkflowUrls()
     const eventText = url.event
@@ -50,7 +50,7 @@ export class Block {
     ]
   }
 
-  public static getCommitField(commit: github.CommitContext): MrkdwnElement[] {
+  static getCommitField(commit: github.CommitContext): MrkdwnElement[] {
     const commitMsg = commit.message.split('\n')[0]
     const commitUrl = commit.url
     const field: MrkdwnElement[] = [
@@ -73,11 +73,11 @@ export class Block {
 }
 
 export class Slack {
-  public static isMention(condition: string, status: string): boolean {
+  static isMention(condition: string, status: string): boolean {
     return condition === 'always' || condition === status
   }
 
-  public static generatePayload(
+  static generatePayload(
     jobName: string,
     status: string,
     mention: string,
@@ -112,7 +112,7 @@ export class Slack {
     }
   }
 
-  public static async notify(
+  static async notify(
     url: string,
     options: IncomingWebhookDefaultArguments,
     payload: IncomingWebhookSendArguments
@@ -123,8 +123,9 @@ export class Slack {
       if (res.text !== 'ok') {
         throw new Error(JSON.stringify(res.text))
       }
-    } catch (err: any) {
-      core.error(err.message)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      core.error(message)
       throw new Error('Failed to post message to Slack')
     }
   }
