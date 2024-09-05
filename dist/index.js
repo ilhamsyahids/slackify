@@ -33034,7 +33034,7 @@ const slack_1 = __nccwpck_require__(7501);
 async function run() {
     const status = (0, utils_1.validateStatus)(core.getInput('type', { required: true }).toLowerCase());
     const jobName = core.getInput('job_name', { required: true });
-    const url = process.env.SLACK_WEBHOOK || core.getInput('url');
+    const url = core.getInput('url');
     let mention = core.getInput('mention');
     let mentionCondition = core.getInput('mention_if').toLowerCase();
     const slackOptions = {
@@ -33043,7 +33043,7 @@ async function run() {
         icon_emoji: core.getInput('icon_emoji')
     };
     const commitFlag = core.getInput('commit') === 'true';
-    const token = core.getInput('token');
+    const token = core.getInput('token') || core.getInput('github_token');
     if (mention && !(0, utils_1.isValidCondition)(mentionCondition)) {
         mention = '';
         mentionCondition = '';
