@@ -5,7 +5,7 @@ build:
 
 test:
 	-make build
-	docker run -it --rm \
+	docker run --rm \
 		-e GITHUB_REPOSITORY=${GITHUB_REPOSITORY} \
 		-e GITHUB_SHA=${GITHUB_SHA} \
 		-e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} \
