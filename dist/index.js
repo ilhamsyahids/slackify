@@ -32998,7 +32998,7 @@ function getWorkflowUrls() {
 
 /***/ }),
 
-/***/ 6144:
+/***/ 399:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -33033,47 +33033,46 @@ const github = __importStar(__nccwpck_require__(978));
 const utils_1 = __nccwpck_require__(1314);
 const slack_1 = __nccwpck_require__(7501);
 async function run() {
-    const status = (0, utils_1.validateStatus)(core.getInput('type', { required: true }).toLowerCase());
-    const jobName = core.getInput('job_name', { required: true });
-    const url = core.getInput('url');
-    let mention = core.getInput('mention');
-    let mentionCondition = core.getInput('mention_if').toLowerCase();
-    const slackOptions = {
-        username: core.getInput('username'),
-        channel: core.getInput('channel'),
-        icon_emoji: core.getInput('icon_emoji')
-    };
-    const commitFlag = core.getInput('commit') === 'true';
-    const token = core.getInput('token') || core.getInput('github_token');
-    if (mention && !(0, utils_1.isValidCondition)(mentionCondition)) {
-        core.warning(`Ignore slack message mention:
+    try {
+        const status = (0, utils_1.validateStatus)(core.getInput('type', { required: true }).toLowerCase());
+        const jobName = core.getInput('job_name', { required: true });
+        const url = core.getInput('url');
+        let mention = core.getInput('mention');
+        let mentionCondition = core.getInput('mention_if').toLowerCase();
+        const slackOptions = {
+            username: core.getInput('username'),
+            channel: core.getInput('channel'),
+            icon_emoji: core.getInput('icon_emoji')
+        };
+        const commitFlag = core.getInput('commit') === 'true';
+        const token = core.getInput('token') || core.getInput('github_token');
+        if (mention && !(0, utils_1.isValidCondition)(mentionCondition)) {
+            core.warning(`Ignore slack message mention:
       mention_if: ${mentionCondition} is invalid
       `);
-        mention = '';
-        mentionCondition = '';
-    }
-    if (!url) {
-        throw new Error(`Missing Slack Incoming Webhooks URL.
+            mention = '';
+            mentionCondition = '';
+        }
+        if (!url) {
+            throw new Error(`Missing Slack Incoming Webhooks URL.
       Please specify the "url" key in "with" section.
       `);
+        }
+        let commit;
+        if (commitFlag) {
+            commit = await github.getCommit(token);
+        }
+        const payload = slack_1.Slack.generatePayload(jobName, status, mention, mentionCondition, commit);
+        core.debug(`Generated payload for slack: ${JSON.stringify(payload)}`);
+        await slack_1.Slack.notify(url, slackOptions, payload);
+        core.info('Post message to Slack');
+        // Set payload as output
+        core.setOutput('payload', payload);
     }
-    let commit;
-    if (commitFlag) {
-        commit = await github.getCommit(token);
+    catch (error) {
+        if (error instanceof Error)
+            core.setFailed(error.message);
     }
-    const payload = slack_1.Slack.generatePayload(jobName, status, mention, mentionCondition, commit);
-    core.debug(`Generated payload for slack: ${JSON.stringify(payload)}`);
-    await slack_1.Slack.notify(url, slackOptions, payload);
-    core.info('Post message to Slack');
-    // Set payload as output
-    core.setOutput('payload', payload);
-}
-try {
-    run();
-}
-catch (err) {
-    const message = err.message;
-    core.setFailed(message);
 }
 
 
@@ -33202,18 +33201,25 @@ class Slack {
             unfurl_links: true
         };
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static isIncomingWebhookSendError(err) {
+        return (err &&
+            (err.code === webhook_1.ErrorCode.RequestError || err.code === webhook_1.ErrorCode.HTTPError));
+    }
     static async notify(url, options, payload) {
         try {
             const client = new webhook_1.IncomingWebhook(url, options);
-            const res = await client.send(payload);
-            if (res.text !== 'ok') {
-                throw new Error(JSON.stringify(res.text));
-            }
+            await client.send(payload);
         }
         catch (err) {
-            const message = err instanceof Error ? err.message : '';
-            core.error(message);
-            throw new Error('Failed to post message to Slack');
+            if (err instanceof Error) {
+                let message = err.message;
+                if (Slack.isIncomingWebhookSendError(err)) {
+                    message = `Error ${err.code}: ${err.original.message}`;
+                }
+                core.error(message);
+                throw new Error('Failed to post message to Slack');
+            }
         }
     }
 }
@@ -39954,13 +39960,19 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(6144);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const main_1 = __nccwpck_require__(399);
+(0, main_1.run)();
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
