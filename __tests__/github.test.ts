@@ -1,11 +1,20 @@
-import * as github from '@actions/github'
-import { getWorkflowUrls } from '../src/github'
-import { commonContext, repoUrl } from './common'
+import { context, getOctokit } from '@actions/github'
+import { getWorkflowUrls, getCommit } from '../src/github'
+import { commonContext, repoUrl, authorUrl } from './common'
 
-github.context.workflow = commonContext.workflow
-github.context.ref = commonContext.ref
-github.context.sha = commonContext.sha
-github.context.payload = {
+// Mock the GitHub context
+jest.mock('@actions/github', () => {
+  const actualGithub = jest.requireActual('@actions/github')
+  return {
+    ...actualGithub,
+    getOctokit: jest.fn()
+  }
+})
+
+context.sha = commonContext.sha
+context.workflow = commonContext.workflow
+context.ref = commonContext.ref
+context.payload = {
   issue: {
     number: commonContext.number
   },
@@ -19,7 +28,7 @@ github.context.payload = {
 
 describe('Workflow URL Tests', () => {
   test('Pull Request event', () => {
-    github.context.eventName = 'pull_request'
+    context.eventName = 'pull_request'
     const expectedEventUrl = `${repoUrl}/pull/${commonContext.number}`
     const expectedUrls = {
       repo: repoUrl,
@@ -30,11 +39,97 @@ describe('Workflow URL Tests', () => {
   })
 
   test('Push event', () => {
-    github.context.eventName = 'commit'
+    context.eventName = 'commit'
     const expectedUrls = {
       repo: repoUrl,
       action: `${repoUrl}/commit/${commonContext.sha}/checks`
     }
     expect(getWorkflowUrls()).toEqual(expectedUrls)
+  })
+})
+
+describe('getCommit', () => {
+  const mockToken = 'mock-token'
+  const mockCommitData = {
+    commit: {
+      message: 'Mock commit message'
+    },
+    html_url: repoUrl,
+    author: {
+      login: commonContext.owner,
+      html_url: authorUrl
+    }
+  }
+
+  beforeEach(() => {
+    process.env.GITHUB_HEAD_REF = ''
+
+    // Set up the context and mock implementation
+    ;(getOctokit as jest.Mock).mockReturnValue({
+      rest: {
+        repos: {
+          getCommit: jest.fn().mockResolvedValue({ data: mockCommitData })
+        }
+      }
+    })
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should return the correct commit context', async () => {
+    const result = await getCommit(mockToken)
+
+    expect(result).toEqual({
+      message: 'Mock commit message',
+      url: repoUrl,
+      author: {
+        name: commonContext.owner,
+        url: authorUrl
+      }
+    })
+  })
+
+  it('should return the correct commit context with GITHUB_HEAD_REF', async () => {
+    process.env.GITHUB_HEAD_REF = 'refs/heads/test-branch'
+    const result = await getCommit(mockToken)
+
+    expect(result).toEqual({
+      message: 'Mock commit message',
+      url: repoUrl,
+      author: {
+        name: commonContext.owner,
+        url: authorUrl
+      }
+    })
+  })
+
+  it('should handle commits without an author', async () => {
+    const commitDataWithoutAuthor = {
+      commit: {
+        message: 'Mock commit message without author'
+      },
+      html_url: repoUrl,
+      author: null
+    }
+
+    ;(getOctokit as jest.Mock).mockReturnValue({
+      rest: {
+        repos: {
+          getCommit: jest
+            .fn()
+            .mockResolvedValue({ data: commitDataWithoutAuthor })
+        }
+      }
+    })
+
+    const result = await getCommit(mockToken)
+
+    expect(result).toEqual({
+      message: 'Mock commit message without author',
+      url: repoUrl
+    })
+    expect(result.author).toBeUndefined()
   })
 })

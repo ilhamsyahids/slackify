@@ -8,3 +8,5 @@ export const commonContext = {
 }
 
 export const repoUrl = `https://github.com/${commonContext.owner}/${commonContext.repo}`
+
+export const authorUrl = `https://github.com/${commonContext.owner}`

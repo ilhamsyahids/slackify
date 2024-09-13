@@ -3,7 +3,8 @@ import nock from 'nock'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Block, Slack } from '../src/slack'
-import { commonContext, repoUrl } from './common'
+import { commonContext, repoUrl, authorUrl } from './common'
+import assert from 'assert'
 
 github.context.workflow = commonContext.workflow
 github.context.ref = commonContext.ref
@@ -73,8 +74,8 @@ describe('Commit Field Tests', () => {
       url: 'https://this.is.test',
       message: 'this is test',
       author: {
-        url: 'https://github.com/ilhamsyahids',
-        name: 'ilhamsyahids'
+        url: authorUrl,
+        name: commonContext.owner
       }
     }
     const expectedCommitField = [
@@ -107,21 +108,6 @@ describe('Commit Field Tests', () => {
 })
 
 describe('Payload Tests', () => {
-  const context = {
-    jobName: 'test',
-    status: 'success',
-    mention: 'bot',
-    mentionCondition: 'always',
-    commit: {
-      message: 'Hello World\nYEAH!!!!!',
-      url: 'https://this.is.test',
-      author: {
-        name: 'ilhamsyahids',
-        url: 'https://github.com/ilhamsyahids'
-      }
-    }
-  }
-
   test('Mention needs always', () => {
     expect(Slack.isMention('always', 'test')).toBe(true)
   })
@@ -134,18 +120,55 @@ describe('Payload Tests', () => {
     expect(Slack.isMention('success', 'failure')).toBe(false)
   })
 
-  test('Generate slack payload', () => {
+  test.each([
+    {
+      context: {
+        jobName: 'test',
+        status: 'success',
+        mention: 'bot',
+        mentionCondition: 'always',
+        commit: {
+          message: 'Hello World\nYEAH!!!!!',
+          url: 'https://this.is.test',
+          author: {
+            name: commonContext.owner,
+            url: authorUrl
+          }
+        }
+      }
+    },
+    {
+      context: {
+        jobName: 'test',
+        status: 'success',
+        mention: '',
+        mentionCondition: 'always',
+        commit: {
+          message: 'Hello World',
+          url: 'https://this.is.test',
+          author: {
+            name: commonContext.owner,
+            url: authorUrl
+          }
+        }
+      }
+    }
+  ])('Generate slack payload', ({ context }) => {
     github.context.eventName = 'pull_request'
     const eventUrl = `${repoUrl}/pull/${commonContext.number}`
     const status = context.status as keyof typeof Block.status
+    const blockStatus = Block.status[status]
+
+    let text = `${context.jobName} ${blockStatus['result']}`
+    if (context.mention) {
+      text = `<!${context.mention}> ${text}`
+    }
 
     const expectedPayload = {
-      text: `<!${context.mention}> ${context.jobName} ${
-        Block.status[status]['result']
-      }`,
+      text,
       attachments: [
         {
-          color: Block.status[status]['color'],
+          color: blockStatus['color'],
           blocks: [
             {
               type: 'section',
@@ -199,7 +222,7 @@ describe('Payload Tests', () => {
 describe('Post Message Tests', () => {
   const baseUrl = 'https://this.is.test'
   const options = {
-    username: 'ilhamsyahids',
+    username: commonContext.owner,
     channel: 'test',
     icon_emoji: 'pray'
   }
@@ -215,11 +238,12 @@ describe('Post Message Tests', () => {
   })
 
   test('Throw error', async () => {
-    nock(baseUrl).post('/failure').reply(404, { error: 'channel_not_found' })
+    nock(baseUrl).post('/failure').reply(403, 'invalid_token')
 
     let error: Error | unknown
     try {
       await Slack.notify(`${baseUrl}/failure`, options, payload)
+      assert.fail('Expected to throw an error')
     } catch (err: unknown) {
       error = err
     } finally {

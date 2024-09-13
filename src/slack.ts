@@ -4,7 +4,9 @@ import { MrkdwnElement } from '@slack/types'
 import {
   IncomingWebhook,
   IncomingWebhookSendArguments,
-  IncomingWebhookDefaultArguments
+  IncomingWebhookDefaultArguments,
+  IncomingWebhookSendError,
+  ErrorCode
 } from '@slack/webhook'
 import * as github from './github'
 
@@ -112,6 +114,14 @@ export class Slack {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static isIncomingWebhookSendError(err: any): err is IncomingWebhookSendError {
+    return (
+      err &&
+      (err.code === ErrorCode.RequestError || err.code === ErrorCode.HTTPError)
+    )
+  }
+
   static async notify(
     url: string,
     options: IncomingWebhookDefaultArguments,
@@ -119,14 +129,16 @@ export class Slack {
   ): Promise<void> {
     try {
       const client = new IncomingWebhook(url, options)
-      const res = await client.send(payload)
-      if (res.text !== 'ok') {
-        throw new Error(JSON.stringify(res.text))
-      }
+      await client.send(payload)
     } catch (err) {
-      const message = err instanceof Error ? err.message : ''
-      core.error(message)
-      throw new Error('Failed to post message to Slack')
+      if (err instanceof Error) {
+        let message = err.message
+        if (Slack.isIncomingWebhookSendError(err)) {
+          message = `Error ${err.code}: ${err.original.message}`
+        }
+        core.error(message)
+        throw new Error('Failed to post message to Slack')
+      }
     }
   }
 }
