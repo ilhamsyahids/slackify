@@ -19,8 +19,7 @@ describe('run function', () => {
   it('should call Slack.notify with correct parameters', async () => {
     const coreGetInputMock = core.getInput as jest.Mock
     coreGetInputMock.mockImplementation((name: string) => {
-      if (name === 'url')
-        return 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
+      if (name === 'url') return 'https://webhook.com'
       if (name === 'job_name') return 'test-job'
       if (name === 'type') return 'success'
       if (name === 'mention') return ''
@@ -48,7 +47,7 @@ describe('run function', () => {
     await run()
 
     expect(Slack.notify).toHaveBeenCalledWith(
-      'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+      'https://webhook.com',
       {
         username: 'test-user',
         channel: '#test-channel',
@@ -67,8 +66,7 @@ describe('run function', () => {
 
     const coreGetInputMock = core.getInput as jest.Mock
     coreGetInputMock.mockImplementation((name: string) => {
-      if (name === 'url')
-        return 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
+      if (name === 'url') return 'https://webhook.com'
       if (name === 'job_name') return 'test-job'
       if (name === 'type') return 'success'
       if (name === 'mention') return 'someUser'
