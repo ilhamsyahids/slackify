@@ -4,7 +4,7 @@ import * as github from './github'
 import { validateStatus, isValidCondition } from './utils'
 import { Slack } from './slack'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   const status = validateStatus(
     core.getInput('type', { required: true }).toLowerCase()
   )
@@ -21,11 +21,11 @@ async function run(): Promise<void> {
   const token = core.getInput('token') || core.getInput('github_token')
 
   if (mention && !isValidCondition(mentionCondition)) {
-    mention = ''
-    mentionCondition = ''
-    core.warning(`Ignore slack message metion:
+    core.warning(`Ignore slack message mention:
       mention_if: ${mentionCondition} is invalid
       `)
+    mention = ''
+    mentionCondition = ''
   }
 
   if (!url) {
@@ -58,6 +58,6 @@ async function run(): Promise<void> {
 try {
   run()
 } catch (err) {
-  const message = err instanceof Error ? err.message : ''
+  const message = (err as Error).message
   core.setFailed(message)
 }
