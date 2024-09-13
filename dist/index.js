@@ -33027,6 +33027,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(978));
 const utils_1 = __nccwpck_require__(1314);
@@ -33045,11 +33046,11 @@ async function run() {
     const commitFlag = core.getInput('commit') === 'true';
     const token = core.getInput('token') || core.getInput('github_token');
     if (mention && !(0, utils_1.isValidCondition)(mentionCondition)) {
-        mention = '';
-        mentionCondition = '';
-        core.warning(`Ignore slack message metion:
+        core.warning(`Ignore slack message mention:
       mention_if: ${mentionCondition} is invalid
       `);
+        mention = '';
+        mentionCondition = '';
     }
     if (!url) {
         throw new Error(`Missing Slack Incoming Webhooks URL.
@@ -33071,7 +33072,7 @@ try {
     run();
 }
 catch (err) {
-    const message = err instanceof Error ? err.message : '';
+    const message = err.message;
     core.setFailed(message);
 }
 
