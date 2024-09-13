@@ -1,16 +1,16 @@
 {
-  "name": "container-toolkit-template",
-  "description": "Container template action using @actions/toolkit",
-  "version": "0.0.0",
+  "name": "slackify",
+  "description": "A GitHub Action to send a Slack message",
+  "version": "1.0.0",
   "author": "",
   "private": true,
-  "homepage": "https://github.com/actions/container-toolkit-template#readme",
+  "homepage": "https://github.com/ilhamsyahids/slackify#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/container-toolkit-template.git"
+    "url": "git+https://github.com/ilhamsyahids/slackify.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/container-toolkit-template/issues"
+    "url": "https://github.com/ilhamsyahids/slackify/issues"
   },
   "keywords": [
     "actions",
